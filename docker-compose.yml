@@ -4,9 +4,9 @@ services:
     container_name: gobarber_app
     build: .
     environment:
-      - MONGO_URI=mongodb://mongo/todo
+      - DB_URL=
       - PORT=3000
-      - NODE_ENV=production
+      - NODE_ENV=local
     ports:
       - "3333:3000"
     depends_on:

@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import Appointment from '../models/Appointment';
 import User from '../models/User';
@@ -78,6 +78,12 @@ class AppointmentController {
         .json({ error: `User with id ${provider_id} is not a provider` });
     }
 
+    if (provider_id === req.userId) {
+      return res
+        .status(400)
+        .json({ error: `Provider can't create appointment for itself.` });
+    }
+
     const appointment = await Appointment.create({
       provider_id,
       date: hourStart,
@@ -96,6 +102,30 @@ class AppointmentController {
       content: `Novo agendamento de usuário ${user.name} para ${formattedDate}`,
       user: provider_id,
     });
+
+    return res.json(appointment);
+  }
+
+  async delete(req, res) {
+    const appointment = await Appointment.findByPk(req.params.id);
+
+    if (appointment.user_id !== req.userId) {
+      return res
+        .status(401)
+        .json({ error: 'You have no permission to remove this appointement' });
+    }
+
+    const dateWithSub = subHours(appointment.date, 2);
+
+    if (isBefore(dateWithSub, new Date())) {
+      return res
+        .status(401)
+        .json({ error: "You can't cancel this appointment" });
+    }
+
+    appointment.canceled_at = new Date();
+
+    await appointment.save();
 
     return res.json(appointment);
   }

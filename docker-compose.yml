@@ -9,10 +9,12 @@ services:
       - DB_NAME=gobarber
       - PORT=3000
       - NODE_ENV=local
+      - MONGO_URL=mongodb://mongo:27017/gobarber
     ports:
       - "3333:3000"
     depends_on:
       - db
+      - mongo
     entrypoint: ["/bin/bash", "./entrypoint.sh"]
 
   db:
@@ -24,3 +26,10 @@ services:
       POSTGRES_USER: gobarber
       POSTGRES_PASSWORD: gobarber
       POSTGRES_DB: gobarber
+
+  mongo:
+    image: mongo
+    container_name: gobarber_mongo
+    ports:
+      - 27017:27017
+    command: mongod --logpath=/dev/null

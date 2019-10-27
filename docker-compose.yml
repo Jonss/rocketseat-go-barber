@@ -10,11 +10,22 @@ services:
       - PORT=3000
       - NODE_ENV=local
       - MONGO_URL=mongodb://mongo:27017/gobarber
+      - REDIS_URL=redis://:password@redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MAIL_HOST=smtp.mailtrap.io
+      - MAIL_PORT=2525
+      - MAIL_USER=6ddc568f7fd105
+      - MAIL_PASS=d0454016cae786
+      - SENTRY_nope=https://6287698efb16477595168ea78d6102ff@sentry.io/1797769
+      - APP_URL=http://localhost:3333
+      - APP_SECRET=secret
     ports:
       - "3333:3000"
     depends_on:
       - db
       - mongo
+      - redis
     entrypoint: ["/bin/bash", "./entrypoint.sh"]
 
   db:
@@ -33,3 +44,10 @@ services:
     ports:
       - 27017:27017
     command: mongod --logpath=/dev/null
+
+  redis:
+    image: redis:alpine
+    container_name: gobarber_redis
+    command: redis-server
+    ports:
+      - 6379:6379
